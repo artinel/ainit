@@ -4,6 +4,8 @@
 #include<std/io.h>
 
 void shell_list();
+void exec_shell(char* shell);
+void clear_screen();
 
 int main(int argc, char** argv){
 
@@ -13,9 +15,10 @@ int main(int argc, char** argv){
 		//Reading default shell
 		readf(file, sh, 32);
 		//Executing shell program
-		exec(sh, NULL, NULL);
+		exec_shell(sh);
 	}else{
-		prints("Failed to load shell!!!\n");
+		clear_screen();
+		prints(T_RED"Failed to load shell!!!\n"T_NORMAL);
 		shell_list();
 	}
 
@@ -34,17 +37,29 @@ void shell_list(){
 		filestat(file, &stat);
 		char buffer[stat.st_size];
 		readf(file, buffer, sizeof(buffer));
-		prints("List of available shells\n");
-		prints(buffer);
+		prints(T_GREEN"List of available shells\n"T_NORMAL);
+		prints(T_YELLOW"%s"T_NORMAL, buffer);
 		prints("Enter a shell path to execute : ");
 		char sh[32];
 		scans(sh, 32, 0);
-		if(exec(sh, NULL, NULL) == 0){
-			prints("Failed to load shell!!!\n");
-			shell_list();
-		}
+		exec_shell(sh);
 	}else{
-		prints("No shell found!!!\n");
+		prints(T_RED"No shell found!!!\n"T_NORMAL);
 	}
 	closef(file);
+}
+
+void exec_shell(char* shell){
+	pid_t pid = fork();
+	if(!pid){
+		if(exec(shell, NULL, NULL) == 0){
+			clear_screen();
+			prints(T_RED"Failed to load shell!!!\n"T_NORMAL);
+			shell_list();
+		}
+	}
+}
+
+void inline clear_screen(){
+	prints("\033[2J\033[H");
 }
