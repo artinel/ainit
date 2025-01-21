@@ -14,8 +14,8 @@ int main(int argc, char** argv){
 		//Reading default shell
 		filestat_t stat;
 		filestat(file, &stat);
-		char sh[stat.st_size];
-		readf(file, sh, 12);
+		char sh[stat.st_size - 1];
+		readf(file, sh, sizeof(sh));
 		//Executing shell program
 		exec_shell(sh);
 	}else{
