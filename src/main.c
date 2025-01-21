@@ -9,11 +9,13 @@ void clear_screen();
 
 int main(int argc, char** argv){
 
-	char sh[32];
 	file_t file = openf("/etc/def-shell", F_RONLY, F_IRUSR);
 	if(file >= 0){
 		//Reading default shell
-		readf(file, sh, 32);
+		filestat_t stat;
+		filestat(file, &stat);
+		char sh[stat.st_size];
+		readf(file, sh, 12);
 		//Executing shell program
 		exec_shell(sh);
 	}else{
@@ -50,6 +52,7 @@ void shell_list(){
 }
 
 void exec_shell(char* shell){
+	prints(T_GREEN"Executing %s\n"T_NORMAL, shell);
 	pid_t pid = fork();
 	if(!pid){
 		if(exec(shell, NULL, NULL) == 0){
